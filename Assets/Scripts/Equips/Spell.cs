@@ -2,8 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface Spell {
-	public void FireSpell1 ( PlayerController pc );
-	public void FireSpell2 ( PlayerController pc );
-	public void SpellDash ( PlayerController pc );
+public abstract class Spell : ScriptableObject {
+	protected PlayerController player;
+	public abstract void FireSpell1 ();
+	public abstract void FireSpell2 ();
+	public abstract void SpellDash ();
+	public abstract void FixedUpdate ();
+
+	public void Init () {
+		if ( player == null ) player = PlayerController.Player;
+	}
 }

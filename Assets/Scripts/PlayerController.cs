@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
-{
+public class PlayerController : MonoBehaviour {
+
+    public static PlayerController Player { get; private set; }
+
     // Player Values
     public Spell EquippedSpell;
     public Weapon EquippedWeapon;
@@ -21,7 +23,7 @@ public class PlayerController : MonoBehaviour
 
     // Internal values.
     [HideInInspector] public bool shouldDash = false;
-    [HideInInspector] public float dashTimer = 0f;
+    [HideInInspector] public bool isDashing = false;
 
     [SerializeField] Transform gravitationalCenter;
 
@@ -39,12 +41,19 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         Cam = Camera.main;
+        Player = this;
+        EquippedSpell?.Init();
+        EquippedWeapon?.Init();
     }
 
     // Update is called once per frame
     void Update() {
         UpdateCamera();
         UpdateInputs();
+
+        if (transform.position.y < -10) {
+            transform.position = new Vector3( 0 , 10 , 0 );
+		}
     }
 
 	private void FixedUpdate () {
@@ -68,18 +77,14 @@ public class PlayerController : MonoBehaviour
 	}
 
     Vector3 movementVector = new Vector3();
-    Vector3 dashVector = new Vector3();
     void UpdateMovement() {
         // Check if dashing.
-        if (dashTimer > 0) {
-            // Maintain movement vector.
-            transform.position += AdjustVectorByRaycast( dashVector , -0.5f );
-            dashTimer -= Time.fixedDeltaTime * dashSpeedMulti;
-            if ( dashTimer <= 0 ) movementVector = AdjustVectorByRaycast( dashVector , -0.5f ); ;
-            shouldDash = false;
+        // Was coded here, but needs to be moved to spell FixedUpdate();
+        if ( isDashing ) {
+            EquippedSpell.FixedUpdate();
             return;
         }
-
+        
         // -- Horizontal Movement --
         Vector3 newTarget = new Vector3();
         if ( InputHandler.InputForward ) newTarget += Cam.transform.forward;
@@ -95,14 +100,6 @@ public class PlayerController : MonoBehaviour
         // Normalize again, multiply by move speed.
         newTarget.Normalize();
         newTarget *= moveSpeedMulti * 0.5f;
-
-        // Check if starting to dash.
-        if (dashTimer <= 0f && shouldDash) {
-            dashTimer = dashLength;
-            dashVector = newTarget * dashSpeedMulti;
-            shouldDash = false;
-            return;
-		}
 
         // -- Vectical Movement --
         if ( IsGrounded && InputHandler.InputJump ) movementVector += transform.up * jumpHeightMulti * 0.5f ;
@@ -120,11 +117,11 @@ public class PlayerController : MonoBehaviour
         // Add back in the new vertical component.
         movementVector += downVector;
 
-        transform.position += AdjustVectorByRaycast(movementVector);
+        transform.position += Utilities.Inst.AdjustVectorByRaycast(transform.position, movementVector);
     }
 
     void UpdateInputs () {
-        if ( InputHandler.InputDash ) shouldDash = true;
+        if ( InputHandler.InputDash ) EquippedSpell.SpellDash();
 	}
 
     void UpdateGravity() {
@@ -132,18 +129,13 @@ public class PlayerController : MonoBehaviour
         transform.rotation = Quaternion.LookRotation( Vector3.Cross( transform.right , newUp ) , newUp );
 	}
 
-    Vector3 AdjustVectorByRaycast(Vector3 inV, float yOffset = 0f) {
-        // Use SphereCastAll to hit multiple walls and adjust the vector appropriately.
-        Vector3 orig = transform.TransformPoint(new Vector3(0,yOffset,0));
-        RaycastHit[] hits = Physics.SphereCastAll(orig - inV, 0.5f, inV.normalized, inV.magnitude * 2, 1 << 6 );
-        if ( hits.Length == 0 ) return inV;
-
-        foreach ( RaycastHit hit in hits ) {
-            if ( hit.distance != 0 ) {
-                float dotDiff = Vector3.Dot(inV, hit.normal);
-                inV += hit.normal * -dotDiff;
-            }
-		}
-        return inV;
+    /// <summary>
+    /// Used for an outside script to adjust the player movement.
+    /// </summary>
+    /// <param name="newVec">The new vector to use for the movement vector.</param>
+    /// <param name="additive">Optional. If false, sets the internal movement vector to newVec. Otherwise, adds the newVec to the current movement vector.</param>
+    public void SetMovementVector(Vector3 newVec, bool additive = false) {
+        if ( additive ) movementVector += newVec;
+        else movementVector = newVec;
 	}
 }
