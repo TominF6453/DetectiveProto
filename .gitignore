@@ -8,6 +8,7 @@
 sysinfo.txt
 [Tt]emp.meta
 ProjectSettings/ProjectVersion.txt
+
  
 # ===================================== #
 # Visual Studio / MonoDevelop generated #
@@ -44,3 +45,5 @@ ehthumbs.db
 Unity/Assets/Editor/Prime31/P31PostProcessor.pyc
 Unity/Assets/Editor/Prime31/P31PostProcessor.pyc.meta
 .vs/
+/*.log
+*.log
