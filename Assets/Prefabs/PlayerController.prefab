@@ -194,10 +194,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb5e81e4ad3a15942935e18e894ef8f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  EquippedSpell: {fileID: 11400000, guid: 86816dc4bab441940abad1a1e0c8d439, type: 2}
+  EquippedWeapon: {fileID: 0}
   moveSpeedMulti: 1
   jumpHeightMulti: 1
   gravityMulti: 1
   airControlMulti: 0.2
+  dashLength: 1
+  dashSpeedMulti: 4
+  shouldDash: 0
+  isDashing: 0
+  gravitationalCenter: {fileID: 0}
 --- !u!1 &8848937238294554691
 GameObject:
   m_ObjectHideFlags: 0
