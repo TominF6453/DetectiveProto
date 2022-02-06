@@ -28,8 +28,9 @@ public class Utilities : MonoBehaviour
         if ( hits.Length == 0 ) return inV;
 
         float dotDiff;
+        int n = 0;
         // Infinitely loop through this until no more objects get hit.
-        while ( hits.Length != 0 ) {
+        while ( hits.Length != 0 && n < 5 ) {
             foreach ( RaycastHit hit in hits ) {
                 if ( hit.distance != 0 ) {
                     dotDiff = Vector3.Dot(inV, hit.normal);
@@ -39,6 +40,7 @@ public class Utilities : MonoBehaviour
 
             // Refresh hits with adjusted inV vector.
             hits = Physics.SphereCastAll( orig - inV , radius , inV.normalized , inV.magnitude * 2 , 1 << 6 );
+            n++;
         }
         return inV;
     }
