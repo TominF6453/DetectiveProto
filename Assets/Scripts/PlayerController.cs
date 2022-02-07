@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour {
     public float airControlMulti = 0.2f;
     public float dashLength = 1f;
     public float dashSpeedMulti = 4f;
+    public Transform respawnPoint;
 
     // Camera
     public Camera Cam { private set; get; }
@@ -52,7 +53,7 @@ public class PlayerController : MonoBehaviour {
         UpdateInputs();
 
         if (transform.position.y < -10) {
-            transform.position = new Vector3( 0 , 10 , 0 );
+            transform.position = respawnPoint == null ? new Vector3(0, 10, 0) : respawnPoint.position;
 		}
     }
 
