@@ -16192,6 +16192,10 @@ PrefabInstance:
       propertyPath: jumpHeightMulti
       value: 1.1
       objectReference: {fileID: 0}
+    - target: {fileID: 8848937237673696597, guid: d910e68132fb6304cb44e1b2be5a6dd9, type: 3}
+      propertyPath: coyoteTimeDuration
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 8848937237673696598, guid: d910e68132fb6304cb44e1b2be5a6dd9, type: 3}
       propertyPath: m_RootOrder
       value: 1

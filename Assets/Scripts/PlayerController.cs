@@ -18,6 +18,7 @@ public class PlayerController : MonoBehaviour {
     public float dashLength = 1f;
     public float dashSpeedMulti = 4f;
     public Transform respawnPoint;
+    public float coyoteTimeDuration = 0.1f;
 
     // Camera
     public Camera Cam { private set; get; }
@@ -35,7 +36,11 @@ public class PlayerController : MonoBehaviour {
 			else return Mathf.Infinity;
 		} }
 
+    /// when IsGrounded is false start CoyoteTimer counting down from coyoteTimeDuration to 0
+    /// if CoyoteTimer is > 0 CanJump is true
     private bool IsGrounded { get { return FloorDistance <= 1.2f; } }
+    private float CoyoteTimer;
+    private bool CanJump;
     private float GroundedMovementMulti { get { return IsGrounded ? 1.0f : airControlMulti; } }
 
     // Start is called before the first frame update
@@ -79,6 +84,15 @@ public class PlayerController : MonoBehaviour {
 
     Vector3 movementVector = new Vector3();
     void UpdateMovement() {
+        if ( IsGrounded ){
+            CanJump = true;
+            CoyoteTimer = coyoteTimeDuration;
+        }
+        else  CoyoteTimer -= 1 * Time.deltaTime;
+
+        CanJump = CoyoteTimer > 0;
+        print(CanJump);
+
         // Check if dashing.
         // Was coded here, but needs to be moved to spell FixedUpdate();
         if ( isDashing ) {
@@ -103,7 +117,10 @@ public class PlayerController : MonoBehaviour {
         newTarget *= moveSpeedMulti * 0.5f;
 
         // -- Vectical Movement --
-        if ( IsGrounded && InputHandler.InputJump ) movementVector += transform.up * jumpHeightMulti * 0.5f ;
+        if (CanJump && InputHandler.InputJump){
+            CoyoteTimer = 0;
+            movementVector += transform.up * jumpHeightMulti * 0.5f;
+        }
 
         // Get clamped dot value.
         float clampDot = Mathf.Clamp(Vector3.Dot(movementVector, transform.up) - (gravityMulti * .05f), -FloorDistance + 1, 100f);
