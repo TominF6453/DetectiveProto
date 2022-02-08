@@ -36,12 +36,13 @@ public class PlayerController : MonoBehaviour {
 			else return Mathf.Infinity;
 		} }
 
-    /// when IsGrounded is false start CoyoteTimer counting down from coyoteTimeDuration to 0
-    /// if CoyoteTimer is > 0 CanJump is true
     private bool IsGrounded { get { return FloorDistance <= 1.2f; } }
-    private float CoyoteTimer;
-    private bool CanJump;
     private float GroundedMovementMulti { get { return IsGrounded ? 1.0f : airControlMulti; } }
+
+    // when IsGrounded is false start CoyoteTimer counting down from coyoteTimeDuration to 0
+    // if CoyoteTimer is > 0 CanJump is true
+    private float CoyoteTimer;
+    private bool CanJump { get => CoyoteTimer > 0; }
 
     // Start is called before the first frame update
     void Start()
@@ -84,13 +85,9 @@ public class PlayerController : MonoBehaviour {
 
     Vector3 movementVector = new Vector3();
     void UpdateMovement() {
-        if ( IsGrounded ){
-            CanJump = true;
-            CoyoteTimer = coyoteTimeDuration;
-        }
-        else  CoyoteTimer -= 1 * Time.deltaTime;
+        if ( IsGrounded ) CoyoteTimer = coyoteTimeDuration;
+        else CoyoteTimer -= Time.deltaTime;
 
-        CanJump = CoyoteTimer > 0;
         print(CanJump);
 
         // Check if dashing.
