@@ -1,11 +1,17 @@
-Shader "Custom/TestShader"
+Shader "Custom/BasicShader"
 {
     Properties
     {
         _Color ("Color", Color) = (1,1,1,1)
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
+        [Normal][NoScaleOffset]
         _Normal ("Normal", 2D) = "bump" {}
+        [Gamma][NoScaleOffset]
         _MaskMap ("MaskMap", 2D) = "bump" {}
+        _MetallicRange("Metallic Range", Vector) = (0,1,0,0)
+        _SmoothnessRange("Smoothness Range", Vector) = (0,1,0,0)
+        _AORange("Ambient Occlusion Range", Vector) = (0,1,0,0)
+        
     }
     SubShader
     {
@@ -26,14 +32,15 @@ Shader "Custom/TestShader"
         struct Input
         {
             float2 uv_MainTex;
-            float2 uv_Normal;
-            float2 uv_MaskMap;
         };
 
         half _Glossiness;
         half _Metallic;
         half _AO;
         fixed4 _Color;
+        fixed4 _MetallicRange;
+        fixed4 _SmoothnessRange;
+        fixed4 _AORange;
 
         // Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
         // See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
@@ -47,11 +54,11 @@ Shader "Custom/TestShader"
             // Albedo comes from a texture tinted by color
             fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color;
             o.Albedo = c.rgb;
-            o.Normal = UnpackNormal(tex2D(_Normal, IN.uv_Normal));
+            o.Normal = UnpackNormal(tex2D(_Normal, IN.uv_MainTex));
             // Metallic and smoothness come from slider variables
-            o.Metallic = tex2D (_MaskMap, IN.uv_MaskMap).r;
-            o.Smoothness = tex2D(_MaskMap, IN.uv_MaskMap).a;
-            o.Occlusion = tex2D(_MaskMap, IN.uv_MaskMap).g;
+            o.Metallic = clamp(tex2D(_MaskMap, IN.uv_MainTex).r, _MetallicRange.r, _MetallicRange.g);
+            o.Smoothness = clamp(tex2D(_MaskMap, IN.uv_MainTex).a, _SmoothnessRange.r, _SmoothnessRange.g);
+            o.Occlusion = clamp(tex2D(_MaskMap, IN.uv_MainTex).g, _AORange.r, _AORange.g);
             o.Alpha = c.a;
         }
         ENDCG
