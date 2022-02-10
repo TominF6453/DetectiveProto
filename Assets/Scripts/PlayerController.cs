@@ -88,7 +88,7 @@ public class PlayerController : MonoBehaviour {
         if ( IsGrounded ) CoyoteTimer = coyoteTimeDuration;
         else CoyoteTimer -= Time.deltaTime;
 
-        print(CanJump);
+        //print(CanJump);
 
         // Check if dashing.
         // Was coded here, but needs to be moved to spell FixedUpdate();
